@@ -1,0 +1,6 @@
+{
+  "name": "OXW Creativ",
+  "description": "Plateforme malgache de minage intelligent de puissance virtuelle VIP. Louez vos packs de minage à haut rendement, profitez d'un système de parrainage et de commissions à 10%, et encaissez vos gains directement en Ariary (Ar) sur MVola, Orange Money ou Airtel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
