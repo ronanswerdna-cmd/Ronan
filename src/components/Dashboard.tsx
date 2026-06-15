@@ -85,8 +85,8 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
     <div className="space-y-6">
       
       {/* Top Banner summary */}
-      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 glow-gold relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl"></div>
+      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl"></div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -96,7 +96,7 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
               </span>
             </div>
             <h2 className="text-white text-xl md:text-2xl font-display font-black mt-1">
-              Bienvenue, <span className="bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500 bg-clip-text text-transparent">{user.name}</span>
+              Bienvenue, <span className="bg-gradient-to-r from-blue-400 via-blue-200 to-indigo-300 bg-clip-text text-transparent">{user.name}</span>
             </h2>
             <p className="text-slate-400 text-xs mt-1 font-mono">
               Numéro de retrait enregistré : <strong className="text-slate-200">{user.phone}</strong>
@@ -104,7 +104,7 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
           </div>
 
           <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center gap-4 w-full md:w-auto shrink-0">
-            <div className="p-2.5 bg-amber-500/10 rounded-lg text-amber-500 border border-amber-500/15">
+            <div className="p-2.5 bg-blue-500/10 rounded-lg text-blue-400 border border-blue-500/15">
               <Cpu className="w-5 h-5" />
             </div>
             <div>
@@ -122,7 +122,7 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
         
         {/* Circle mining manual collector */}
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col items-center justify-center text-center relative overflow-hidden h-[360px] shadow-lg shadow-slate-950/20">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl"></div>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl"></div>
           
           <span className={`text-[10px] font-mono font-black tracking-wider absolute top-4 left-4 border px-2 py-0.5 rounded-md uppercase ${
             hasActiveVip 
@@ -145,7 +145,7 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
               
               <button
                 onClick={() => onNavigate('packs')}
-                className="w-full max-w-xs py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs tracking-wider uppercase shadow-md shadow-amber-500/10 active:scale-95 transition-all mt-1"
+                className="w-full max-w-xs py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-black text-xs tracking-wider uppercase shadow-md shadow-blue-500/10 active:scale-95 transition-all mt-1 cursor-pointer"
               >
                 Louer un Contrat VIP →
               </button>
@@ -157,7 +157,7 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
                 <div className="relative mt-2">
                   <div className={`absolute inset-0 rounded-full border-2 border-emerald-500/10 scale-150 transition-all duration-1000 ${circlePulse ? 'scale-170 opacity-0' : 'opacity-100'}`}></div>
                   <div className="w-28 h-28 rounded-full bg-slate-950 border-4 border-slate-800/60 flex flex-col items-center justify-center relative shadow-xl">
-                    <Clock className="w-7 h-7 text-amber-500 animate-spin" style={{ animationDuration: '8s' }} />
+                    <Clock className="w-7 h-7 text-blue-500 animate-spin" style={{ animationDuration: '8s' }} />
                     <div className="text-[9px] text-slate-500 font-mono mt-1.5 uppercase font-bold tracking-tight">EN COURS</div>
                     <div className="text-emerald-400 font-mono font-black text-xs mt-0.5">
                       +{Math.round(totalDailyYield).toLocaleString('fr-FR')} Ar / j
@@ -167,7 +167,7 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
 
                 <div className="mt-5 w-full max-w-xs space-y-2">
                   <span className="text-slate-400 text-[10px] font-mono block">PROCHAINE COLLECTE DE GAINS DANS :</span>
-                  <div className="text-base text-amber-400 font-mono font-black tracking-widest px-3 py-1.5 bg-slate-950 border border-slate-800/80 rounded-xl shadow-inner">
+                  <div className="text-base text-blue-400 font-mono font-black tracking-widest px-3 py-1.5 bg-slate-950 border border-slate-800/80 rounded-xl shadow-inner">
                     {formatTimeLeft(timeLeft)}
                   </div>
                   <p className="text-[10px] text-slate-500 font-mono italic">
@@ -183,8 +183,8 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                   </span>
-                  <div className="w-20 h-20 rounded-full bg-slate-950 border-2 border-amber-500/40 flex items-center justify-center animate-bounce duration-1000 shadow-lg shadow-amber-500/10">
-                    <Coins className="w-8 h-8 text-amber-500" />
+                  <div className="w-20 h-20 rounded-full bg-slate-950 border-2 border-blue-500/40 flex items-center justify-center animate-bounce duration-1000 shadow-lg shadow-blue-500/10">
+                    <Coins className="w-8 h-8 text-blue-500" />
                   </div>
                 </div>
 
@@ -200,9 +200,9 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
 
                 <button
                   onClick={onCollectMining}
-                  className="w-full max-w-xs py-3 px-6 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm tracking-widest uppercase shadow-lg shadow-amber-500/30 hover:shadow-amber-500/45 border-t border-white/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full max-w-xs py-3 px-6 rounded-xl bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-black text-sm tracking-widest uppercase shadow-lg shadow-blue-500/30 hover:shadow-blue-500/45 border-t border-white/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Coins className="w-4 h-4 fill-current text-slate-950" />
+                  <Coins className="w-4 h-4 fill-current text-white" />
                   Hanangona
                 </button>
               </div>
@@ -225,10 +225,10 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
             </div>
             <div className="pt-4 border-t border-slate-950 mt-4">
               <div className="text-2xl font-mono font-black text-white">
-                {totalDailyYield.toLocaleString('fr-FR')} <span className="text-amber-500 text-sm">Ar / j</span>
+                {totalDailyYield.toLocaleString('fr-FR')} <span className="text-blue-500 text-sm">Ar / j</span>
               </div>
               <p className="text-slate-400 text-xs mt-1 leading-normal">
-                Montant total versé sur votre compte à chaque fois que vous cliquez sur le bouton <strong className="text-slate-200">\"Hanangona\"</strong>.
+                Montant total versé sur votre compte à chaque fois que vous cliquez sur le bouton <strong className="text-slate-200">"Hanangona"</strong>.
               </p>
             </div>
           </div>
@@ -239,7 +239,7 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
                 <span className="text-slate-500 text-[10px] font-mono block">RENDEMENT MENSUEL ESTIMÉ</span>
                 <p className="text-sm font-semibold text-white mt-1">Sur la base de 30 jours</p>
               </div>
-              <span className="text-[10px] font-mono bg-amber-500/15 text-amber-400 px-2 py-0.5 rounded font-bold">
+              <span className="text-[10px] font-mono bg-blue-500/15 text-blue-400 px-2 py-0.5 rounded font-bold">
                 CUMUL
               </span>
             </div>
@@ -259,7 +259,7 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
                 <span className="text-slate-500 text-[10px] font-mono block">RECHARGE EN ATTENTE</span>
                 <p className="text-sm font-semibold text-white mt-1">En cours de traitement</p>
               </div>
-              <span className="text-[10px] font-mono bg-amber-500/15 text-amber-500 px-2 py-0.5 rounded font-black">
+              <span className="text-[10px] font-mono bg-blue-500/15 text-blue-400 px-2 py-0.5 rounded font-black">
                 ADMIN
               </span>
             </div>
@@ -275,7 +275,7 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-amber-500/10 to-slate-900 border border-amber-500/20 p-5 rounded-2xl flex flex-col justify-between">
+          <div className="bg-gradient-to-br from-blue-500/10 to-slate-900 border border-blue-500/20 p-5 rounded-2xl flex flex-col justify-between">
             <div>
               <h4 className="font-display font-black text-base text-white">Activer un nouveau Rig ?</h4>
               <p className="text-slate-300 text-xs mt-1 leading-relaxed">
@@ -285,13 +285,13 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
             <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-950/40">
               <button
                 onClick={() => onNavigate('packs')}
-                className="flex-1 py-2 px-3 bg-amber-500 hover:bg-amber-400 transition-colors text-slate-950 font-bold rounded-lg text-xs"
+                className="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-500 transition-colors text-white font-bold rounded-lg text-xs cursor-pointer"
               >
                 Louer un VIP
               </button>
               <button
                 onClick={() => onNavigate('referrals')}
-                className="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-700 text-white font-medium rounded-lg text-xs"
+                className="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-700 text-white font-medium rounded-lg text-xs cursor-pointer"
               >
                 Parrainage (10%)
               </button>
@@ -304,17 +304,17 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
       {/* Rigs / Mineurs Actifs list */}
       <section className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
         <h3 className="font-display font-extrabold text-white text-base mb-4 flex items-center gap-2">
-          <Cpu className="w-5 h-4.5 text-amber-500" />
+          <Cpu className="w-5 h-4.5 text-blue-500" />
           Rigs de minage actifs installés
         </h3>
 
         {activeVips.length === 0 ? (
-          <div className="bg-slate-950 border border-slate-805/80 text-center py-8 rounded-xl">
+          <div className="bg-slate-950 border border-slate-850 text-center py-8 rounded-xl">
             <Lock className="w-8 h-8 text-slate-600 mx-auto mb-2" />
             <p className="text-slate-400 text-xs font-mono">Aucun Rig de minage VIP actif pour l'instant.</p>
             <button
               onClick={() => onNavigate('packs')}
-              className="text-amber-400 text-xs mt-2 font-bold hover:underline"
+              className="text-blue-400 text-xs mt-2 font-bold hover:underline cursor-pointer"
             >
               Consulter la liste de contrats Louables →
             </button>
@@ -325,9 +325,9 @@ export default function Dashboard({ user, onNavigate, onCollectMining }: Dashboa
               const pack = MINER_PACKS.find(p => p.id === act.minerId);
               if (!pack) return null;
               return (
-                <div key={index} className="bg-slate-950 border border-slate-805 rounded-xl p-4 flex items-center justify-between">
+                <div key={index} className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs bg-amber-400/10 text-amber-400 border border-amber-400/20">
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20">
                       #{index + 1}
                     </div>
                     <div>

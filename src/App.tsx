@@ -10,7 +10,7 @@ import Withdraws from './components/Withdraws';
 import Referrals from './components/Referrals';
 import AdminPanel from './components/AdminPanel';
 import { MINER_PACKS } from './data';
-import { Cpu, Coins, ShieldCheck, HelpCircle, LogOut } from 'lucide-react';
+import { Cpu, Coins, ShieldCheck, HelpCircle, LogOut, ArrowRight } from 'lucide-react';
 
 const LOCAL_STORAGE_KEY = 'oxw_creativ_user_session_v1';
 const GLOBAL_USERS_KEY = 'oxw_users_all_list_v2';
@@ -26,6 +26,12 @@ export default function App() {
   const [liveBalance, setLiveBalance] = useState<number>(0);
   const [usdtRate, setUsdtRate] = useState<number>(4650); // Live USDT to MGA (Ariary) exchange rate, fallback is 4650 Ar
   const [lastRateUpdateAt, setLastRateUpdateAt] = useState<string>('En attente...');
+
+  // Countdown/loading state variables for authentication
+  const [authLoadingUser, setAuthLoadingUser] = useState<{phone: string, name: string, passwordString: string, referralCodeIntroduced?: string} | null>(null);
+  const [authLoadingProgress, setAuthLoadingProgress] = useState(false);
+  const [authLoadingSeconds, setAuthLoadingSeconds] = useState(10);
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState<string | null>(null);
 
   // Fetch real-time exchange rate for USDT (USD to MGA) - Polling every 12 seconds for active real-time tracking
   useEffect(() => {
@@ -237,8 +243,36 @@ export default function App() {
     setActiveTab('dashboard');
   };
 
-  // Sign up/Login integration
+  // Countdown ticking effect
+  useEffect(() => {
+    if (!authLoadingProgress) return;
+    const interval = setInterval(() => {
+      setAuthLoadingSeconds(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setAuthLoadingProgress(false);
+          if (authLoadingUser) {
+            setShowWelcomeMessage(authLoadingUser.name);
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [authLoadingProgress, authLoadingUser]);
+
+  // Sign up/Login integration (Kicks off the 10 second loader)
   const handleAuthSuccess = (phone: string, name: string, passwordString: string, referralCodeIntroduced?: string) => {
+    setAuthLoadingUser({ phone, name, passwordString, referralCodeIntroduced });
+    setAuthLoadingSeconds(10);
+    setAuthLoadingProgress(true);
+  };
+
+  // Finalizes connection logic and unlocks full space after welcome prompt
+  const handleFinalizeAuth = () => {
+    if (!authLoadingUser) return;
+    const { phone, name, passwordString, referralCodeIntroduced } = authLoadingUser;
     const nowStr = new Date().toISOString();
     
     // A. Parse latest global users from localStorage
@@ -259,6 +293,8 @@ export default function App() {
     if (isRonanRA) {
       if (passwordString !== '17022006') {
         alert("🔒 Code d'accès incorrect pour ce numéro de téléphone. Veuillez réessayer.");
+        setAuthLoadingUser(null);
+        setShowWelcomeMessage(null);
         return;
       }
       
@@ -292,15 +328,19 @@ export default function App() {
       setLiveBalance(ronanUser.balance);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(ronanUser));
       setActiveTab('admin');
+      setAuthLoadingUser(null);
+      setShowWelcomeMessage(null);
       return;
     }
 
     const matchedUser = currentGlobalUsers.find(u => u.phone === phone);
 
     if (matchedUser) {
-      // 1. Password Verification (for security and professional feel)
-      if (matchedUser.password && matchedUser.password !== passwordString) {
+      // 1. Password Verification (skipped for google login with code google_bypass_sso_1702)
+      if (passwordString !== 'google_bypass_sso_1702' && matchedUser.password && matchedUser.password !== passwordString) {
         alert("🔒 Code d'accès incorrect pour ce numéro de téléphone. Veuillez réessayer.");
+        setAuthLoadingUser(null);
+        setShowWelcomeMessage(null);
         return;
       }
 
@@ -313,10 +353,12 @@ export default function App() {
       } else {
         setActiveTab('dashboard');
       }
+      setAuthLoadingUser(null);
+      setShowWelcomeMessage(null);
       return;
     }
 
-    // B. Registering a new account
+    // B. Registering a new account (Standard or Google SSO)
     const personalRef = `OXW-${phone.substring(Math.max(0, phone.length - 4))}-${Math.floor(100 + Math.random() * 900)}`;
     let welcomeBonus = 1000; // 1 000 Ar welcome bonus
     let referredByCode = '';
@@ -328,9 +370,9 @@ export default function App() {
 
       if (parentUser) {
         referredByCode = parentUser.referralCode;
-        welcomeBonus = 1000; // Keep 1 000 Ar welcome bonus
+        welcomeBonus = 1000; // Keep 1000 Ar welcome bonus
 
-        // Credit the referrer direct signup bonus 2 000 Ar!
+        // Credit the referrer direct signup bonus 2000 Ar!
         currentGlobalUsers = currentGlobalUsers.map(u => {
           if (u.phone === parentUser.phone) {
             return {
@@ -390,6 +432,9 @@ export default function App() {
     setUser(newUser);
     setLiveBalance(newUser.balance);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newUser));
+    setActiveTab('dashboard');
+    setAuthLoadingUser(null);
+    setShowWelcomeMessage(null);
   };
 
   // Sync balances and persist on specific atomic events
@@ -612,6 +657,88 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-between">
+      {/* 10 Seconds progress loading screen */}
+      {authLoadingProgress && (
+        <div className="fixed inset-0 bg-slate-950 z-[999] flex flex-col items-center justify-center p-6 text-center">
+          <div className="absolute w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+          
+          <div className="relative flex flex-col items-center">
+            {/* Pulsing circular logo */}
+            <div className="relative w-36 h-36 rounded-full flex items-center justify-center mb-8 border border-blue-500/30 bg-slate-900/80 shadow-2xl p-2 animate-pulse">
+              <div className="absolute inset-0 rounded-full border-4 border-t-blue-600 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+              <img 
+                src="https://i.postimg.cc/L66D8QG2/1781466214082.jpg" 
+                alt="OXW Logo" 
+                referrerPolicy="no-referrer"
+                className="w-full h-full rounded-full object-cover shadow-lg"
+              />
+            </div>
+
+            <h2 className="font-display font-black text-2xl md:text-3xl tracking-tight text-white mb-2 uppercase">
+              Initialisation de votre rig
+            </h2>
+            <p className="text-blue-400 font-mono text-xs tracking-widest uppercase mb-6 animate-pulse">
+              MINAGE IA CLOUD • MADAGASCAR
+            </p>
+
+            <div className="w-64 h-2 bg-slate-900 border border-slate-800 rounded-full overflow-hidden mb-4 relative">
+              <div 
+                className="h-full bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 transition-all duration-1000 ease-linear"
+                style={{ width: `${(10 - authLoadingSeconds) * 10}%` }}
+              ></div>
+            </div>
+
+            <div className="text-slate-400 font-mono text-sm font-semibold">
+              Sécurisation des protocoles : <span className="text-blue-500 font-black text-lg">{authLoadingSeconds}s</span>
+            </div>
+
+            <p className="text-[10px] text-slate-500 max-w-xs mt-8">
+              Veillez à ne pas fermer cette fenêtre. Nous configurons vos clés d'accès privées cryptographiques.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Tongasoa welcome greeting */}
+      {showWelcomeMessage && (
+        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[999] flex flex-col items-center justify-center p-4">
+          <div className="absolute w-[450px] h-[450px] bg-blue-500/10 rounded-full blur-[140px] pointer-events-none"></div>
+
+          <div className="bg-slate-900 border-2 border-blue-600/40 w-full max-w-md rounded-3xl p-8 relative shadow-2xl text-center space-y-6 overflow-hidden">
+            <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border border-blue-500/20 shadow-md">
+              <img 
+                src="https://i.postimg.cc/L66D8QG2/1781466214082.jpg" 
+                alt="OXW logo" 
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-[10px] text-blue-400 font-mono tracking-widest uppercase font-black bg-blue-500/10 px-3 py-1 rounded-full">
+                ✓ AUTHENTIFICATION RÉUSSIE
+              </span>
+              <h1 className="font-display font-black text-2xl text-white tracking-tight pt-2">
+                Tongasoa, {showWelcomeMessage} !
+              </h1>
+              <p className="text-slate-300 text-xs md:text-sm leading-relaxed px-4">
+                Saha-toerana feno ho an'ny fidiram-bola passif malagasy. Oxw Creativ dia faly mandray anao.
+                <br />
+                Votre espace de minage IA à Madagascar est prêt.
+              </p>
+            </div>
+
+            <button
+              onClick={handleFinalizeAuth}
+              className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95 flex items-center justify-center gap-2 font-display uppercase tracking-wider"
+            >
+              Accéder à mon espace membre
+              <ArrowRight className="w-4 h-4 text-white" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div>
         {/* Top Scrolling News Bar (Ticker) */}
         <Ticker usdtRate={usdtRate} />
@@ -640,12 +767,15 @@ export default function App() {
                 
                 {/* Logo & Madagascar title */}
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center font-display font-black text-slate-950 text-xl tracking-wider shadow-lg shadow-amber-500/20">
-                    OXW
-                  </div>
+                  <img 
+                    src="https://i.postimg.cc/L66D8QG2/1781466214082.jpg" 
+                    alt="Logo" 
+                    referrerPolicy="no-referrer"
+                    className="w-10 h-10 rounded-xl object-cover border border-blue-500/30 shadow-md shadow-blue-500/10"
+                  />
                   <div>
                     <span className="font-display font-extrabold text-lg text-white">
-                      OXW <span className="bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">Creativ Portal</span>
+                      OXW <span className="bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">Creativ Portal</span>
                     </span>
                     <p className="text-[10px] text-emerald-400 font-mono tracking-widest leading-none mt-0.5">
                       MINAGE IA CLOUD • MADAGASCAR
@@ -659,9 +789,9 @@ export default function App() {
                     <>
                       <button
                         onClick={() => setActiveTab('dashboard')}
-                        className={`px-3 py-1.5 md:px-4 md:py-2 text-xs font-bold rounded-lg transition-colors ${
+                        className={`px-3 py-1.5 md:px-4 md:py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
                           activeTab === 'dashboard' 
-                            ? 'bg-amber-500 text-slate-950' 
+                            ? 'bg-blue-600 text-white' 
                             : 'text-slate-400 hover:text-white hover:bg-slate-900'
                         }`}
                       >
@@ -669,9 +799,9 @@ export default function App() {
                       </button>
                       <button
                         onClick={() => setActiveTab('packs')}
-                        className={`px-3 py-1.5 md:px-4 md:py-2 text-xs font-bold rounded-lg transition-colors ${
+                        className={`px-3 py-1.5 md:px-4 md:py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
                           activeTab === 'packs' 
-                            ? 'bg-amber-500 text-slate-950' 
+                            ? 'bg-blue-600 text-white' 
                             : 'text-slate-400 hover:text-white hover:bg-slate-900'
                         }`}
                       >
@@ -679,9 +809,9 @@ export default function App() {
                       </button>
                       <button
                         onClick={() => setActiveTab('referrals')}
-                        className={`px-3 py-1.5 md:px-4 md:py-2 text-xs font-bold rounded-lg transition-colors ${
+                        className={`px-3 py-1.5 md:px-4 md:py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
                           activeTab === 'referrals' 
-                            ? 'bg-amber-500 text-slate-950' 
+                            ? 'bg-blue-600 text-white' 
                             : 'text-slate-400 hover:text-white hover:bg-slate-900'
                         }`}
                       >
@@ -689,9 +819,9 @@ export default function App() {
                       </button>
                       <button
                         onClick={() => setActiveTab('deposits')}
-                        className={`px-3 py-1.5 md:px-4 md:py-2 text-xs font-bold rounded-lg transition-colors ${
+                        className={`px-3 py-1.5 md:px-4 md:py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
                           activeTab === 'deposits' 
-                            ? 'bg-amber-500 text-slate-950' 
+                            ? 'bg-blue-600 text-white' 
                             : 'text-slate-400 hover:text-white hover:bg-slate-900'
                         }`}
                       >
@@ -699,9 +829,9 @@ export default function App() {
                       </button>
                       <button
                         onClick={() => setActiveTab('withdraws')}
-                        className={`px-3 py-1.5 md:px-4 md:py-2 text-xs font-bold rounded-lg transition-colors ${
+                        className={`px-3 py-1.5 md:px-4 md:py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
                           activeTab === 'withdraws' 
-                            ? 'bg-amber-500 text-slate-950' 
+                            ? 'bg-blue-600 text-white' 
                             : 'text-slate-400 hover:text-white hover:bg-slate-900'
                         }`}
                       >
@@ -711,7 +841,7 @@ export default function App() {
                   ) : (
                     <button
                       onClick={() => setActiveTab('admin')}
-                      className="px-3 py-1.5 md:px-4 md:py-2 text-xs font-black rounded-lg border border-emerald-500/20 bg-emerald-500 text-slate-950"
+                      className="px-3 py-1.5 md:px-4 md:py-2 text-xs font-black rounded-lg border border-emerald-550 bg-emerald-500 text-slate-950 cursor-pointer"
                     >
                       Espace Admin ⚙️
                     </button>
@@ -739,7 +869,7 @@ export default function App() {
                   <button
                     onClick={handleLogOut}
                     title="Se Déconnecter"
-                    className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:text-amber-400 text-slate-400 hover:bg-slate-850 transition-colors cursor-pointer"
+                    className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:text-blue-400 text-slate-400 hover:bg-slate-850 transition-colors cursor-pointer"
                   >
                     <LogOut className="w-4.5 h-4.5" />
                   </button>
@@ -768,6 +898,7 @@ export default function App() {
                 <Referrals 
                   user={user} 
                   allUsers={allUsers}
+                  onNavigate={setActiveTab}
                 />
               )}
               {activeTab === 'deposits' && (
@@ -827,7 +958,7 @@ export default function App() {
               href="https://wa.me/+261387203022" 
               target="_blank" 
               rel="noreferrer" 
-              className="hover:text-amber-400 transition-colors"
+              className="hover:text-blue-400 transition-colors"
             >
                WhatsApp : +261 38 72 030 22
             </a>

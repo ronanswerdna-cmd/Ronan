@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { UserAccount } from '../types';
-import { Sparkles, Trophy, Link, Copy, Check, Users, Gift, Megaphone } from 'lucide-react';
+import { Sparkles, Trophy, Link, Copy, Check, Users, Gift, Megaphone, ShieldCheck, Lock } from 'lucide-react';
 
 interface ReferralsProps {
   user: UserAccount;
   allUsers: UserAccount[];
+  onNavigate: (tab: string) => void;
 }
 
-export default function Referrals({ user, allUsers }: ReferralsProps) {
+export default function Referrals({ user, allUsers, onNavigate }: ReferralsProps) {
   const [copied, setCopied] = useState(false);
 
   // Generate their personal referral link
@@ -23,15 +24,78 @@ export default function Referrals({ user, allUsers }: ReferralsProps) {
   // Find users who were referred by this user
   const referredPeople = allUsers.filter(u => u.referredBy === refCode || u.referredBy === user.phone);
 
+  // Measure cumulative approved deposits to unlock program (min 5 000 Ar deposit)
+  const totalApprovedDeposits = (user.depositHistory || [])
+    .filter(d => d.status === 'approved')
+    .reduce((sum, d) => sum + d.amount, 0);
+
+  const isUnlocked = totalApprovedDeposits >= 5000;
+
+  if (!isUnlocked) {
+    return (
+      <div className="space-y-6">
+        <section className="bg-slate-900 border-2 border-red-500/20 p-8 rounded-3xl relative overflow-hidden shadow-xl text-center max-w-2xl mx-auto space-y-6 py-12">
+          {/* Subtle Royal Blue / Red Light Glow */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full blur-2xl"></div>
+
+          <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto border border-red-500/30">
+            <Lock className="w-8 h-8" />
+          </div>
+
+          <div className="space-y-2">
+            <span className="text-[10px] text-red-400 font-mono tracking-widest uppercase font-bold bg-red-500/10 px-3 py-1 rounded-full">
+              SÉCURISATION ANTI-FRAUDE
+            </span>
+            <h2 className="text-white text-xl md:text-2xl font-display font-black pt-2">
+              Étape d'activation requise
+            </h2>
+            <p className="text-slate-400 text-xs md:text-sm leading-relaxed max-w-md mx-auto">
+              Afin d'éviter la prolifération de faux comptes d'affiliation à Madagascar, vous devez avoir effectué un dépôt cumulé minimum de <strong className="text-blue-400">5 000 Ar</strong> pour déverrouiller votre lien de parrainage et percevoir des primes.
+            </p>
+          </div>
+
+          {/* Progress Status */}
+          <div className="bg-slate-950 border border-slate-800 p-4 rounded-2xl max-w-sm mx-auto space-y-1">
+            <div className="flex justify-between text-xs text-slate-500 font-mono">
+              <span>Votre dépôt validé actuel :</span>
+              <strong className="text-red-400">{totalApprovedDeposits.toLocaleString('fr-FR')} Ar</strong>
+            </div>
+            <div className="flex justify-between text-xs text-slate-500 font-mono">
+              <span>Seuil requis pour activer :</span>
+              <strong className="text-emerald-400">5 000 Ar</strong>
+            </div>
+            {/* Minimal Progress Line */}
+            <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden mt-3 border border-slate-800">
+              <div 
+                className="bg-blue-600 h-full rounded-full transition-all" 
+                style={{ width: `${Math.min(100, (totalApprovedDeposits / 5000) * 100)}%` }}
+              ></div>
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <button
+              onClick={() => onNavigate('deposits')}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl transition-all shadow-lg active:scale-95 inline-flex items-center gap-2 uppercase tracking-wide"
+            >
+              Faire un dépôt pour débloquer (Min. 5 000 Ar)
+              <Sparkles className="w-4 h-4 text-blue-300" />
+            </button>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       
       {/* Referral Header */}
       <section className="bg-slate-900 border border-slate-800 p-6 rounded-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl"></div>
         
         <div>
-          <span className="text-[10px] font-mono font-bold bg-amber-550/10 border border-amber-500/20 text-amber-500 px-2 py-0.5 rounded uppercase inline-block mb-2">
+          <span className="text-[10px] font-mono font-bold bg-blue-500/10 border border-blue-500/20 text-blue-400 px-2 py-0.5 rounded uppercase inline-block mb-2">
             Programme d'Affiliation OXW Madagascar
           </span>
           <h2 className="text-white text-xl md:text-2xl font-display font-black mt-1">
@@ -47,37 +111,37 @@ export default function Referrals({ user, allUsers }: ReferralsProps) {
       <section className="grid md:grid-cols-3 gap-4">
         
         <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex items-start gap-4">
-          <div className="p-3 bg-amber-500/10 text-amber-550 rounded-xl border border-amber-500/15 shrink-0">
-            <Gift className="w-5 h-5 text-amber-500" />
+          <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/15 shrink-0">
+            <Gift className="w-5 h-5 text-blue-500" />
           </div>
           <div>
             <h4 className="text-white text-sm font-bold">1. Prime de Bienvenue</h4>
             <p className="text-slate-400 text-xs mt-1 leading-normal">
-              Vos filleuls reçoivent instantanément <strong className="text-slate-200">1 000 Ar de bienvenue</strong> d'office à la création de leur compte.
+              Vos filleuls reçoivent instantanément <strong className="text-slate-205">1 000 Ar de bienvenue</strong> d'office à la création de leur compte.
             </p>
           </div>
         </div>
 
         <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex items-start gap-4">
-          <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl border border-emerald-500/15 shrink-0">
-            <Trophy className="w-5 h-5 text-emerald-400" />
+          <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/15 shrink-0">
+            <Trophy className="w-5 h-5 text-blue-400" />
           </div>
           <div>
             <h4 className="text-white text-sm font-bold">2. Commission d'Affiliation Directe</h4>
             <p className="text-slate-400 text-xs mt-1 leading-normal">
-              Gagnez <strong className="text-emerald-400">2 000 Ar par filleul</strong> inscrit et validé par notre réseau de minage.
+              Gagnez <strong className="text-blue-400 font-extrabold">2 000 Ar par filleul</strong> inscrit et validé par notre réseau de minage.
             </p>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-amber-500/10 to-slate-900 border border-amber-500/20 p-5 rounded-2xl flex items-start gap-4">
-          <div className="p-3 bg-amber-550/10 text-amber-500 rounded-xl border border-amber-500/15 shrink-0">
-            <Sparkles className="w-5 h-5 text-amber-400" />
+        <div className="bg-gradient-to-br from-blue-500/10 to-slate-900 border border-blue-500/25 p-5 rounded-2xl flex items-start gap-4">
+          <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/15 shrink-0">
+            <Sparkles className="w-5 h-5 text-blue-400" />
           </div>
           <div>
             <h4 className="text-white text-sm font-bold">3. 10% Royalties Dépôt</h4>
-            <p className="text-slate-350 text-xs mt-1 leading-normal">
-              Touchez <strong className="text-amber-400">10% sur chaque dépôt de pack</strong> effectué par vos filleuls, crédités en direct à vie !
+            <p className="text-slate-355 text-xs mt-1 leading-normal">
+              Touchez <strong className="text-blue-400">10% sur chaque dépôt de pack</strong> effectué par vos filleuls, crédités en direct à vie !
             </p>
           </div>
         </div>
@@ -103,11 +167,11 @@ export default function Referrals({ user, allUsers }: ReferralsProps) {
                     type="text"
                     readOnly
                     value={referralLink}
-                    className="flex-1 bg-transparent text-slate-300 font-mono text-xs px-2.5 focus:outline-none focus:ring-0"
+                    className="flex-1 bg-transparent text-slate-300 font-mono text-xs px-2.5 focus:outline-none"
                   />
                   <button
                     onClick={handleCopyLink}
-                    className="py-1.5 px-3 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
+                    className="py-1.5 px-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
                   >
                     {copied ? (
                       <>
@@ -134,7 +198,7 @@ export default function Referrals({ user, allUsers }: ReferralsProps) {
                       setCopied(true);
                       setTimeout(() => setCopied(false), 2000);
                     }}
-                    className="text-amber-400 hover:text-amber-300 text-xs font-bold font-mono hover:underline"
+                    className="text-blue-400 hover:text-blue-300 text-xs font-bold font-mono hover:underline"
                   >
                     Copier le code
                   </button>
@@ -144,11 +208,11 @@ export default function Referrals({ user, allUsers }: ReferralsProps) {
           </div>
 
           <div className="p-4 bg-slate-950 rounded-xl border border-slate-900 mt-6 flex items-start gap-3">
-            <Megaphone className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <Megaphone className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
             <div>
               <h5 className="text-white text-xs font-bold font-mono">Comment ça marche en coulisses ?</h5>
               <p className="text-[11px] text-slate-400 leading-relaxed mt-1">
-                Dès que votre ami s'inscrit en renseignant votre code <strong className="text-slate-205">{refCode}</strong> dans le formulaire, il apparaît automatiquement dans votre liste ci-contre. Votre commission de parrainage de 10% sur ses futurs achats de VIP s'ajoutera instantanément lors de l'approbation du dépôt par l'administrateur !
+                Dès que votre ami s'inscrit en renseignant votre code <strong className="text-slate-200">{refCode}</strong> dans le formulaire, il apparaît automatiquement dans votre liste ci-contre. Votre commission de parrainage de 10% sur ses futurs achats de VIP s'ajoutera instantanément lors de l'approbation du dépôt par l'administrateur !
               </p>
             </div>
           </div>
@@ -185,8 +249,8 @@ export default function Referrals({ user, allUsers }: ReferralsProps) {
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] text-slate-450 uppercase font-mono block">Rigs loués</span>
-                      <strong className="text-xs font-mono text-amber-500">{person.activeMiners.length} active(s)</strong>
+                      <span className="text-[10px] text-slate-500 uppercase font-mono block">Rigs loués</span>
+                      <strong className="text-xs font-mono text-blue-500">{person.activeMiners.length} active(s)</strong>
                     </div>
                   </div>
                 ))}

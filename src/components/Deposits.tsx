@@ -90,23 +90,23 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
       
       {/* Target Accounts Display */}
       <section className="bg-slate-900 border border-slate-800 p-6 rounded-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl"></div>
         
         <div>
-          <span className="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-mono leading-none tracking-widest font-black uppercase px-2.5 py-1 rounded-md inline-block mb-3">
+          <span className="bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-mono leading-none tracking-widest font-black uppercase px-2.5 py-1 rounded-md inline-block mb-3">
             ⚠️ CONSIGNES OFFICIELLES DE DÉPÔT • TRC-20 UNIQUEMENT
           </span>
           <h3 className="font-display font-black text-white text-lg md:text-xl">
             Compte de Dépôt Crypto Officiel
           </h3>
           <p className="text-slate-400 text-xs md:text-sm mt-1 leading-relaxed">
-            Pour acheter un pack de minage, effectuez d'abord le transfert sur notre compte USDT sécurisé ci-dessous. <strong className="text-amber-400">Taux en temps réel : 1 USDT = {Math.round(usdtRate).toLocaleString('fr-FR')} Ar</strong> (actualisé en direct sur internet).
+            Pour acheter un pack de minage, effectuez d'abord le transfert sur notre compte USDT sécurisé ci-dessous. <strong className="text-blue-400">Taux en temps réel : 1 USDT = {Math.round(usdtRate).toLocaleString('fr-FR')} Ar</strong> (actualisé en direct sur internet).
           </p>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4 mt-6">
-          <div className="bg-gradient-to-br from-amber-500/10 to-slate-950 border border-amber-500/30 p-5 rounded-xl text-left">
-            <span className="text-yellow-400 text-[10px] font-mono font-bold uppercase tracking-wider block mb-1">Crypto USDT (TRC-20)</span>
+          <div className="bg-gradient-to-br from-blue-500/10 to-slate-950 border border-blue-500/30 p-5 rounded-xl text-left">
+            <span className="text-blue-450 text-[10px] font-mono font-bold uppercase tracking-wider block mb-1">Crypto USDT (TRC-20)</span>
             <p className="text-white text-base md:text-lg font-mono font-black select-all tracking-tight break-all">TNhoWrCzN2zrDwhDLJ7gszMo4qekyaA48H</p>
             <div className="flex justify-between items-center text-[11px] mt-2 text-slate-400">
               <span>Réseau :</span>
@@ -116,7 +116,7 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
 
           <div className="bg-slate-950 border border-slate-800 p-5 rounded-xl text-left flex flex-col justify-between relative overflow-hidden">
             <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-              <span className="w-1.5 h-1.5 bg-emerald-450 bg-emerald-450 bg-emerald-500 rounded-full animate-pulse"></span>
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
               <span className="text-[8px] font-mono font-black text-emerald-400 uppercase tracking-widest">TEMPS RÉEL</span>
             </div>
             <div>
@@ -137,7 +137,7 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
         {/* Deposit Form */}
         <section className="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl relative">
           <h3 className="font-display font-black text-white text-base mb-4 flex items-center gap-2">
-            <Plus className="w-5 h-5 text-amber-500" />
+            <Plus className="w-5 h-5 text-blue-500" />
             Déclarer mon dépôt de fonds
           </h3>
 
@@ -153,7 +153,7 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-slate-400 text-xs font-mono mb-1.5 block font-bold">PROCÉDÉ DE PAIEMENT SÉLECTIONNÉ</label>
-                <div className="w-full bg-slate-950/60 border border-amber-500/30 text-amber-500 rounded-xl py-3 px-4 text-xs font-bold font-mono tracking-wide">
+                <div className="w-full bg-slate-950/60 border border-blue-500/30 text-blue-400 rounded-xl py-3 px-4 text-xs font-bold font-mono tracking-wide">
                   💎 CRYPTO USDT (TRC-20)
                 </div>
               </div>
@@ -170,7 +170,7 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
                     placeholder="Ex: TNhoWrCzN2z..."
                     value={senderNumber}
                     onChange={(e) => setSenderNumber(e.target.value)}
-                    className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono"
+                    className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 font-mono"
                   />
                 </div>
               </div>
@@ -185,14 +185,14 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
                   placeholder="Ex: 10000"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono"
+                  className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 font-mono"
                 />
                 <span className="absolute right-3.5 top-3 text-xs font-bold text-slate-500 font-mono">Ar / Ariary</span>
               </div>
               
               {amount && !isNaN(Number(amount)) && (
-                <p className="text-emerald-450 text-emerald-400 text-xs font-mono font-bold mt-1">
-                  ✓ Équivaut à : <span className="bg-slate-955 px-1.5 py-0.5 rounded text-white font-black">{(Number(amount) / usdtRate).toFixed(2)} USDT ($)</span>
+                <p className="text-emerald-400 text-xs font-mono font-bold mt-1">
+                  ✓ Équivaut à : <span className="bg-slate-950 px-1.5 py-0.5 rounded text-white font-black">{(Number(amount) / usdtRate).toFixed(2)} USDT ($)</span>
                 </p>
               )}
 
@@ -203,7 +203,7 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
                     key={val}
                     type="button"
                     onClick={() => handleSelectQuickAmount(val)}
-                    className="py-1 px-2.5 bg-slate-950 border border-slate-800 text-slate-400 rounded-lg text-xs hover:border-amber-500/40 hover:text-white transition-colors font-mono"
+                    className="py-1 px-2.5 bg-slate-950 border border-slate-800 text-slate-400 rounded-lg text-xs hover:border-blue-500/40 hover:text-white transition-colors font-mono cursor-pointer"
                   >
                     +{val.toLocaleString('fr-FR')} Ar ({(val / usdtRate).toFixed(1)} USDT)
                   </button>
@@ -221,7 +221,7 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
                 placeholder="Ex: txid_680bfa1e7c5d..."
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
-                className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono"
+                className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 font-mono"
               />
             </div>
 
@@ -237,7 +237,7 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
                 onDragLeave={handleDrag}
                 onDrop={handleDrop}
                 className={`border-2 border-dashed ${
-                  dragActive ? 'border-amber-500 bg-amber-500/5' : 'border-slate-800 bg-slate-950/30'
+                  dragActive ? 'border-blue-500 bg-blue-500/5' : 'border-slate-800 bg-slate-950/30'
                 } rounded-xl p-5 text-center transition-colors cursor-pointer relative group`}
               >
                 <input
@@ -247,7 +247,7 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
                   accept="image/*"
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
-                <Upload className="w-6 h-6 text-slate-500 mx-auto mb-2 group-hover:text-amber-400 transition-colors" />
+                <Upload className="w-6 h-6 text-slate-500 mx-auto mb-2 group-hover:text-blue-400 transition-colors" />
                 <p className="text-xs text-slate-300 font-medium">
                   {proofName ? (
                     <span className="text-emerald-400 font-semibold flex items-center justify-center gap-1">
@@ -263,7 +263,7 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
 
             <button
               type="submit"
-              className="w-full py-3 bg-amber-500 hover:bg-amber-400 transition-colors text-slate-950 font-bold text-sm rounded-xl flex items-center justify-center gap-1 active:scale-95 shadow-md"
+              className="w-full py-3 bg-blue-600 hover:bg-blue-500 transition-colors text-white font-bold text-sm rounded-xl flex items-center justify-center gap-1 active:scale-95 shadow-md cursor-pointer cursor-pointer"
             >
               Envoyer ma déclaration pour activation
               <ArrowRight className="w-4 h-4" />
@@ -284,7 +284,7 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
                 Aucun dépôt déclaré pour le moment.
               </p>
             ) : (
-              <div className="space-y-3 max-h-[300px] overflow-y-auto no-scrollbar">
+              <div className="space-y-3 max-h-[300px] overflow-y-auto no-scrollbar font-mono">
                 {user.depositHistory.map((dep) => (
                   <div key={dep.id} className="bg-slate-950 border border-slate-800 rounded-xl p-3.5">
                     <div className="flex justify-between items-start mb-1.5">
@@ -292,7 +292,7 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
                         {dep.operator}
                       </span>
                       {dep.status === 'pending' ? (
-                        <span className="text-[10px] text-amber-400 font-mono font-bold flex items-center gap-1">
+                        <span className="text-[10px] text-blue-400 font-mono font-bold flex items-center gap-1">
                           <Clock className="w-3 h-3" /> En attente
                         </span>
                       ) : (
@@ -302,14 +302,14 @@ export default function Deposits({ user, onSubmitDeposit, usdtRate, lastRateUpda
                       )}
                     </div>
                     
-                    <div className="flex justify-between text-xs mb-1 font-mono">
+                    <div className="flex justify-between text-xs mb-1">
                       <span className="text-slate-400">Montant déclaré :</span>
                       <strong className="text-white">
                         {dep.amount.toLocaleString('fr-FR')} Ar ({(dep.amount / usdtRate).toFixed(2)} USDT)
                       </strong>
                     </div>
 
-                    <div className="text-[10px] text-slate-500 font-mono space-y-0.5 border-t border-slate-900 pt-1.5">
+                    <div className="text-[10px] text-slate-500 space-y-0.5 border-t border-slate-900 pt-1.5">
                       <p>S/N: {dep.senderNumber}</p>
                       <p>Ref: {dep.reference}</p>
                     </div>

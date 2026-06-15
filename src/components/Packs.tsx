@@ -42,9 +42,9 @@ export default function Packs({ user, onActivatePack, onNavigate }: PacksProps) 
       
       {/* Banner introduction */}
       <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl"></div>
         <div className="max-w-2xl">
-          <span className="text-[10px] font-mono font-bold bg-amber-500/10 border border-amber-500/20 text-amber-500 px-2 py-0.5 rounded uppercase">
+          <span className="text-[10px] font-mono font-bold bg-blue-500/10 border border-blue-500/20 text-blue-400 px-2 py-0.5 rounded uppercase">
             Nos offres Cloud Rigs
           </span>
           <h2 className="text-white text-xl md:text-2xl font-display font-black mt-2">
@@ -65,22 +65,22 @@ export default function Packs({ user, onActivatePack, onNavigate }: PacksProps) 
           return (
             <div 
               key={pack.id} 
-              className="bg-slate-900 border border-amber-500/10 hover:border-amber-500/40 rounded-2xl p-6 flex flex-col justify-between transition-all group shadow-md hover:shadow-lg shadow-amber-500/5 hover:shadow-amber-500/10"
+              className="bg-slate-900 border border-blue-500/10 hover:border-blue-500/40 rounded-2xl p-6 flex flex-col justify-between transition-all group shadow-md hover:shadow-lg shadow-blue-500/5 hover:shadow-blue-500/10"
             >
               <div>
                 <div className="flex justify-between items-start mb-4">
-                  <span className="text-slate-500 text-[10px] uppercase font-mono tracking-wider font-extrabold">
+                  <span className="text-slate-500 text-[10px] uppercase font-mono tracking-wider font-extrabold font-mono">
                     CONTRAT DE MINAGE {pack.type.toUpperCase()}
                   </span>
                   
                   {pack.tag && (
-                    <span className="bg-amber-500/10 border border-amber-500/20 font-mono text-[9px] text-amber-400 px-2 py-0.5 rounded uppercase font-bold tracking-widest">
+                    <span className="bg-blue-500/10 border border-blue-500/20 font-mono text-[9px] text-blue-400 px-2 py-0.5 rounded uppercase font-bold tracking-widest font-mono">
                       {pack.tag}
                     </span>
                   )}
                 </div>
 
-                <h3 className="font-display font-black text-xl text-white mb-2 group-hover:text-amber-400 transition-colors">
+                <h3 className="font-display font-black text-xl text-white mb-2 group-hover:text-blue-400 transition-colors">
                   {pack.name} — Contrat Cloud IA MDG
                 </h3>
                 
@@ -91,19 +91,19 @@ export default function Packs({ user, onActivatePack, onNavigate }: PacksProps) 
                 <div className="p-4 bg-slate-950/60 rounded-xl space-y-2 mb-6 font-mono border border-slate-900">
                   <div className="flex justify-between text-xs">
                     <span className="text-slate-500">Dépôt requis :</span>
-                    <strong className="text-white font-extrabold text-sm">
+                    <strong className="text-white font-extrabold text-sm font-mono">
                       {pack.cost.toLocaleString('fr-FR')} Ar
                     </strong>
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="text-slate-500">Revenu calculé :</span>
-                    <strong className="text-amber-400">+{pack.speed.toFixed(4)} Ar / min</strong>
+                    <strong className="text-blue-400 font-mono">+{pack.speed.toFixed(4)} Ar / min</strong>
                   </div>
-                  <div className="flex justify-between text-xs border-t border-slate-900 pt-2">
+                  <div className="flex justify-between text-xs border-t border-slate-900 pt-2 font-mono">
                     <span className="text-slate-400 font-semibold font-sans">Rentabilité Journalière :</span>
                     <strong className="text-emerald-400">+{pack.dailyYield.toLocaleString('fr-FR')} Ar / jour</strong>
                   </div>
-                  <div className="flex justify-between text-xs">
+                  <div className="flex justify-between text-xs font-mono">
                     <span className="text-slate-500">Période d'activité :</span>
                     <strong className="text-slate-300">{pack.termDays} Jours ({pack.termDays / 30} mois)</strong>
                   </div>
@@ -112,14 +112,14 @@ export default function Packs({ user, onActivatePack, onNavigate }: PacksProps) 
 
               <div>
                 {count > 0 && (
-                  <div className="mb-3 text-[10px] text-emerald-400 font-mono bg-emerald-500/10 border border-emerald-500/15 py-1 px-2.5 rounded-lg text-center font-bold">
+                  <div className="mb-3 text-[10px] text-emerald-400 font-mono bg-emerald-500/10 border border-emerald-500/15 py-1 px-2.5 rounded-lg text-center font-bold font-mono">
                     ✓ Actif sur votre espace • Nombre de Rig(s) loué : {count}
                   </div>
                 )}
 
                 <button
                   onClick={() => handleOpenRental(pack)}
-                  className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-400 transition-colors text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-1 active:scale-95 shadow-md"
+                  className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 transition-colors text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 active:scale-95 shadow-md cursor-pointer cursor-pointer"
                 >
                   Louer maintenant & Commencer
                   <ChevronRight className="w-4 h-4" />
@@ -149,8 +149,8 @@ export default function Packs({ user, onActivatePack, onNavigate }: PacksProps) 
                 {successMsg}
               </div>
             ) : (
-              <div className="space-y-4">
-                <p className="text-slate-300 text-xs md:text-sm">
+              <div className="space-y-4 font-mono">
+                <p className="text-slate-300 text-xs md:text-sm font-sans">
                   Vous allez louer le <strong className="text-white">{selectedPack.name}</strong> pour une période de <strong>{selectedPack.termDays} jours</strong>. Le coût sera déduit de votre solde courant.
                 </p>
 
@@ -161,21 +161,21 @@ export default function Packs({ user, onActivatePack, onNavigate }: PacksProps) 
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="text-slate-400">Votre solde :</span>
-                    <strong className="text-amber-400 font-mono">{user.balance.toLocaleString('fr-FR')} Ar</strong>
+                    <strong className="text-blue-400 font-mono">{user.balance.toLocaleString('fr-FR')} Ar</strong>
                   </div>
                 </div>
 
                 {errorMsg && (
-                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-200 text-xs rounded-xl flex items-start gap-2.5">
-                    <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                    <div>
+                  <div className="p-4 bg-blue-500/10 border border-blue-500/20 text-blue-200 text-xs rounded-xl flex items-start gap-2.5">
+                    <AlertTriangle className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                    <div className="font-sans">
                       <p className="font-semibold">{errorMsg}</p>
                       <button
                         onClick={() => {
                           setSelectedPack(null);
                           onNavigate('deposits');
                         }}
-                        className="text-amber-400 hover:underline font-bold text-xs mt-1.5 block"
+                        className="text-blue-400 hover:underline font-bold text-xs mt-1.5 block cursor-pointer"
                       >
                         👉 Faire un dépôt maintenant
                       </button>
@@ -183,16 +183,16 @@ export default function Packs({ user, onActivatePack, onNavigate }: PacksProps) 
                   </div>
                 )}
 
-                <div className="flex gap-2.5 pt-2">
+                <div className="flex gap-2.5 pt-2 font-sans">
                   <button
                     onClick={() => setSelectedPack(null)}
-                    className="flex-1 py-2.5 px-4 bg-slate-800 text-slate-300 font-medium rounded-xl text-xs hover:bg-slate-700"
+                    className="flex-1 py-2.5 px-4 bg-slate-800 text-slate-300 font-medium rounded-xl text-xs hover:bg-slate-700 cursor-pointer"
                   >
                     Annuler
                   </button>
                   <button
                     onClick={handleConfirmRental}
-                    className="flex-1 py-2.5 px-4 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs hover:bg-amber-400 transition-colors"
+                    className="flex-1 py-2.5 px-4 bg-blue-600 text-white font-bold rounded-xl text-xs hover:bg-blue-550 transition-colors cursor-pointer"
                   >
                     Confirmer l'activation
                   </button>

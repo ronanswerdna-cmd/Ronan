@@ -63,13 +63,13 @@ export default function Withdraws({ user, onSubmitWithdraw, usdtRate, lastRateUp
       
       {/* Overview stats bar */}
       <section className="bg-slate-900 border border-slate-800 p-6 rounded-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl"></div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <span className="text-[10px] font-mono font-bold bg-amber-500/10 border border-amber-500/20 text-amber-500 px-2 py-0.5 rounded uppercase font-bold">
+            <span className="text-[10px] font-mono bg-blue-500/10 border border-blue-500/20 text-blue-400 px-2.5 py-1 rounded uppercase font-bold block w-fit mb-3">
               SEUIL MINIMUM DE RETRAIT : {MIN_WITHDRAW.toLocaleString('fr-FR')} Ar ({(MIN_WITHDRAW / usdtRate).toFixed(2)} USDT)
             </span>
-            <h2 className="text-white text-xl md:text-2xl font-display font-black mt-2">
+            <h2 className="text-white text-xl md:text-2xl font-display font-black">
               Encaissez vos gains en direct
             </h2>
             <p className="text-slate-400 text-xs md:text-sm mt-1">
@@ -77,9 +77,9 @@ export default function Withdraws({ user, onSubmitWithdraw, usdtRate, lastRateUp
             </p>
           </div>
 
-          <div className="p-4 bg-slate-950 rounded-xl border border-slate-855 text-right font-mono shrink-0">
+          <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 text-right font-mono shrink-0">
             <span className="text-slate-500 text-[10px] block">VOTRE SOLDE ACTUEL</span>
-            <strong className="text-xl md:text-2xl font-black text-amber-500">
+            <strong className="text-xl md:text-2xl font-black text-blue-500">
               {user.balance.toLocaleString('fr-FR')} <span className="text-xs">Ar</span> <span className="text-sm font-normal text-slate-400">({(user.balance / usdtRate).toFixed(2)} USDT)</span>
             </strong>
           </div>
@@ -92,12 +92,12 @@ export default function Withdraws({ user, onSubmitWithdraw, usdtRate, lastRateUp
         {/* Withdrawal form */}
         <section className="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl">
           <h3 className="font-display font-black text-white text-base mb-4 flex items-center gap-2">
-            <Smartphone className="w-5 h-5 text-amber-500" />
+            <Smartphone className="w-5 h-5 text-blue-500" />
             Demande de retrait Ariary
           </h3>
 
           {successMsg && (
-            <div className="p-4 bg-emerald-500/10 border border-emerald-500/25 text-emerald-450 text-xs rounded-xl mb-4 leading-normal font-semibold">
+            <div className="p-4 bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs rounded-xl mb-4 leading-normal font-semibold">
               ✓ {successMsg}
               <p className="text-[11px] text-slate-300 mt-2 font-mono">
                 La transaction est marquée "En cours" ci-contre. Le paiement sera effectué d'ici peu.
@@ -125,7 +125,7 @@ export default function Withdraws({ user, onSubmitWithdraw, usdtRate, lastRateUp
                     placeholder={operator === 'usdt_trc20' ? "Ex: TNhoWrCzN2z..." : "Ex: 034 56 789 01"}
                     value={receiverNumber}
                     onChange={(e) => setReceiverNumber(e.target.value)}
-                    className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono"
+                    className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 font-mono"
                   />
                 </div>
               </div>
@@ -135,7 +135,7 @@ export default function Withdraws({ user, onSubmitWithdraw, usdtRate, lastRateUp
                 <select
                   value={operator}
                   onChange={(e) => setOperator(e.target.value as any)}
-                  className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-amber-500 font-semibold"
+                  className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none focus:border-blue-500 font-semibold"
                 >
                   <option value="mvola">MVola (Telma)</option>
                   <option value="airtel">Airtel Money</option>
@@ -153,14 +153,14 @@ export default function Withdraws({ user, onSubmitWithdraw, usdtRate, lastRateUp
                   placeholder="Seuil exact: 5000"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono"
+                  className="w-full bg-slate-950/60 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 font-mono"
                 />
                 <span className="absolute right-3.5 top-3 text-xs font-bold text-slate-500 font-mono">Ar</span>
               </div>
               
               {amount && !isNaN(Number(amount)) && (
-                <p className="text-emerald-450 text-emerald-400 text-xs font-mono font-bold mt-1.5 flex items-center flex-wrap gap-1.5">
-                  ✓ Équivaut à : <span className="bg-slate-955 px-1.5 py-0.5 rounded text-white font-black font-mono">{(Number(amount) / usdtRate).toFixed(2)} USDT ($)</span> 
+                <p className="text-emerald-400 text-xs font-mono font-bold mt-1.5 flex items-center flex-wrap gap-1.5">
+                  ✓ Équivaut à : <span className="bg-slate-950 px-1.5 py-0.5 rounded text-white font-black font-mono">{(Number(amount) / usdtRate).toFixed(2)} USDT ($)</span> 
                   <span className="text-slate-500 text-[10px] font-normal font-sans">(Taux en direct : 1 USDT = {Math.round(usdtRate).toLocaleString('fr-FR')} Ar • Synchro : {lastRateUpdateAt} 🟢)</span>
                 </p>
               )}
@@ -168,10 +168,10 @@ export default function Withdraws({ user, onSubmitWithdraw, usdtRate, lastRateUp
               <p className="text-[10px] text-slate-500 font-mono mt-1.5">Saisissez un chiffre entier sans point ni virgule.</p>
             </div>
 
-            <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 flex items-start gap-2 text-xs text-slate-400">
-              <ShieldAlert className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 flex items-start gap-2 text-xs text-slate-400 font-mono">
+              <ShieldAlert className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-slate-250">Garanties de sécurité des transactions :</p>
+                <p className="font-semibold text-slate-200">Garanties de sécurité des transactions :</p>
                 <p className="mt-1 leading-relaxed text-[11px]">
                   Chaque retrait est contrôlé par notre validation d'identité afin de lutter contre la fraude mobile money à Madagascar. Tout détournement de fonds entraînera un blocage permanent du compte OXW.
                 </p>
@@ -180,7 +180,7 @@ export default function Withdraws({ user, onSubmitWithdraw, usdtRate, lastRateUp
 
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-sm rounded-xl transition-all hover:bg-amber-400 shadow-md active:scale-95 flex items-center justify-center gap-1"
+              className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
             >
               Soumettre ma demande de transfert
               <ArrowRight className="w-4 h-4" />
@@ -200,15 +200,15 @@ export default function Withdraws({ user, onSubmitWithdraw, usdtRate, lastRateUp
               Aucun retrait demandé pour l'instant.
             </p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 font-mono">
               {user.withdrawalHistory.map((withd) => (
                 <div key={withd.id} className="bg-slate-950 border border-slate-800 rounded-xl p-3.5">
                   <div className="flex justify-between items-start mb-1.5">
-                    <span className="text-[10px] font-mono bg-slate-900 px-2 py-0.5 rounded text-amber-500 uppercase font-black">
+                    <span className="text-[10px] font-mono bg-slate-900 px-2 py-0.5 rounded text-blue-500 uppercase font-black">
                       {withd.operator === 'usdt_trc20' ? 'USDT (TRC-20)' : withd.operator}
                     </span>
                     {withd.status === 'pending' ? (
-                      <span className="text-[10px] text-amber-400 font-mono font-bold flex items-center gap-1">
+                      <span className="text-[10px] text-blue-450 text-blue-400 font-mono font-bold flex items-center gap-1">
                         <Clock className="w-3 h-3" /> En cours
                       </span>
                     ) : (
@@ -218,12 +218,12 @@ export default function Withdraws({ user, onSubmitWithdraw, usdtRate, lastRateUp
                     )}
                   </div>
 
-                  <div className="flex justify-between text-xs mb-1 font-mono">
+                  <div className="flex justify-between text-xs mb-1">
                     <span className="text-slate-400">Somme retirée :</span>
                     <strong className="text-red-400">-{withd.amount.toLocaleString('fr-FR')} Ar ({(withd.amount / usdtRate).toFixed(2)} USDT)</strong>
                   </div>
 
-                  <p className="text-[10px] text-slate-500 font-mono border-t border-slate-900 pt-1.5 align-middle break-all">
+                  <p className="text-[10px] text-slate-500 border-t border-slate-900 pt-1.5 align-middle break-all">
                     {withd.operator === 'usdt_trc20' ? 'Adresse : ' : 'Numéro : '} {withd.receiverNumber}
                   </p>
                 </div>

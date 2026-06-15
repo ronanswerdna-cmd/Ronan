@@ -1,245 +1,160 @@
 import React, { useState } from 'react';
+import { Users, Cpu, ArrowUpRight, ArrowDownRight, Check, X, ShieldAlert, Edit, Trash2 } from 'lucide-react';
 import { UserAccount, DepositRequest, WithdrawalRequest } from '../types';
-import { Users, ArrowUpRight, ArrowDownRight, Check, X, ShieldAlert, Coins, Cpu, Trash2, Edit } from 'lucide-react';
 
 interface AdminPanelProps {
   users: UserAccount[];
-  onUpdateUsers: (newUsers: UserAccount[]) => void;
-  onLogoutAdmin: () => void;
   usdtRate: number;
+  onLogoutAdmin: () => void;
+  onUpdateUsers: (updatedList: UserAccount[]) => void;
 }
 
-export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRate }: AdminPanelProps) {
+export default function AdminPanel({
+  users,
+  usdtRate,
+  onLogoutAdmin,
+  onUpdateUsers,
+}: AdminPanelProps) {
   const [activeSubTab, setActiveSubTab] = useState<'deposits' | 'withdrawals' | 'users'>('deposits');
   const [editUserPhone, setEditUserPhone] = useState<string | null>(null);
-  const [editBalance, setEditBalance] = useState<string>('');
+  const [editBalance, setEditBalance] = useState('');
 
-  // Calculate statistics
+  // 1. Gather all pending deposits
+  const pendingDeposits: { userName: string; userPhone: string; deposit: DepositRequest }[] = [];
+  users.forEach((u) => {
+    u.depositHistory.forEach((dep) => {
+      if (dep.status === 'pending') {
+        pendingDeposits.push({ userName: u.name, userPhone: u.phone, deposit: dep });
+      }
+    });
+  });
+
+  // 2. Gather all pending withdrawals
+  const pendingWithdrawals: { userName: string; userPhone: string; withdrawal: WithdrawalRequest }[] = [];
+  users.forEach((u) => {
+    u.withdrawalHistory.forEach((withd) => {
+      if (withd.status === 'pending') {
+        pendingWithdrawals.push({ userName: u.name, userPhone: u.phone, withdrawal: withd });
+      }
+    });
+  });
+
+  // 3. Overall Statistics
   const totalUsers = users.length;
-  
-  // Total Approved deposits
-  const totalApprovedDeposits = users.reduce((acc, u) => {
-    return acc + u.depositHistory
-      .filter(d => d.status === 'approved')
-      .reduce((sum, d) => sum + d.amount, 0);
-  }, 0);
+  let totalApprovedDeposits = 0;
+  let totalCompletedWithdrawals = 0;
+  let totalActiveRigs = 0;
 
-  // Total Completed withdrawals
-  const totalCompletedWithdrawals = users.reduce((acc, u) => {
-    return acc + u.withdrawalHistory
-      .filter(w => w.status === 'completed')
-      .reduce((sum, w) => sum + w.amount, 0);
-  }, 0);
-
-  // Total active mining rigs in Madagascar
-  const totalActiveRigs = users.reduce((acc, u) => acc + u.activeMiners.length, 0);
-
-  // Gather all pending deposits across all users
-  interface NestedDeposit {
-    userPhone: string;
-    userName: string;
-    deposit: DepositRequest;
-  }
-  const pendingDeposits: NestedDeposit[] = [];
-  users.forEach(u => {
-    u.depositHistory.forEach(d => {
-      if (d.status === 'pending') {
-        pendingDeposits.push({
-          userPhone: u.phone,
-          userName: u.name,
-          deposit: d,
-        });
-      }
+  users.forEach((u) => {
+    u.depositHistory.forEach((dep) => {
+      if (dep.status === 'approved') totalApprovedDeposits += dep.amount;
+    });
+    u.withdrawalHistory.forEach((withd) => {
+      if (withd.status === 'completed') totalCompletedWithdrawals += withd.amount;
+    });
+    u.activeMiners.forEach((act) => {
+      const isExpired = new Date(act.expiresAt).getTime() <= Date.now();
+      if (!isExpired) totalActiveRigs += 1;
     });
   });
 
-  // Gather all pending withdrawals across all users
-  interface NestedWithdrawal {
-    userPhone: string;
-    userName: string;
-    withdrawal: WithdrawalRequest;
-  }
-  const pendingWithdrawals: NestedWithdrawal[] = [];
-  users.forEach(u => {
-    u.withdrawalHistory.forEach(w => {
-      if (w.status === 'pending') {
-        pendingWithdrawals.push({
-          userPhone: u.phone,
-          userName: u.name,
-          withdrawal: w,
-        });
-      }
-    });
-  });
-
-  // Handle deposit approval
-  const handleApproveDeposit = (userPhone: string, depositId: string) => {
-    const updatedUsers = users.map(u => {
-      if (u.phone === userPhone) {
-        let moneyToAdd = 0;
-        const updatedDeposits = u.depositHistory.map(d => {
-          if (d.id === depositId && d.status === 'pending') {
-            moneyToAdd = d.amount;
-            return { ...d, status: 'approved' as const };
-          }
-          return d;
-        });
-
-        // Add deposit money to user balance
-        let newBalance = u.balance + moneyToAdd;
-        
-        // Handle referral commission of 10% if there is a referrer
-        let commissionLog = '';
-        if (u.referredBy && moneyToAdd > 0) {
-          const commPercent = 0.10; // 10% referral commission
-          const commissionAmount = moneyToAdd * commPercent;
-          
-          // We will award the referrer immediately in the users list
-          const referrerPhone = u.referredBy;
-          // Note: we will edit the referrer in a separate pass below
+  const handleApproveDeposit = (phone: string, depId: string) => {
+    if (confirm("Voulez-vous vraiment approuver et créditer ce dépôt de fonds ?")) {
+      const updated = users.map(u => {
+        if (u.phone === phone) {
+          const depAmount = u.depositHistory.find(d => d.id === depId)?.amount || 0;
+          return {
+            ...u,
+            balance: u.balance + depAmount,
+            depositHistory: u.depositHistory.map(d => d.id === depId ? { ...d, status: 'approved' as const } : d)
+          };
         }
-
-        return {
-          ...u,
-          balance: newBalance,
-          depositHistory: updatedDeposits,
-          lastBalanceUpdateAt: new Date().toISOString()
-        };
-      }
-      return u;
-    });
-
-    // Award referral cash to the referrer
-    const userOfInterest = users.find(u => u.phone === userPhone);
-    if (userOfInterest && userOfInterest.referredBy) {
-      const depositObj = userOfInterest.depositHistory.find(d => d.id === depositId);
-      if (depositObj) {
-        const commission = depositObj.amount * 0.10;
-        updatedUsers.forEach(u => {
-          if (u.phone === userOfInterest.referredBy || u.referralCode === userOfInterest.referredBy) {
-            u.balance += commission;
-            u.referralEarnings += commission;
-          }
-        });
-      }
-    }
-
-    onUpdateUsers(updatedUsers);
-    alert('Le dépôt a été approuvé et le solde de l\'utilisateur a été crédité !');
-  };
-
-  // Handle deposit rejection
-  const handleRejectDeposit = (userPhone: string, depositId: string) => {
-    const updatedUsers = users.map(u => {
-      if (u.phone === userPhone) {
-        const updatedDeposits = u.depositHistory.map(d => {
-          if (d.id === depositId) {
-            return { ...d, status: 'rejected' as const };
-          }
-          return d;
-        });
-
-        return {
-          ...u,
-          depositHistory: updatedDeposits,
-        };
-      }
-      return u;
-    });
-
-    onUpdateUsers(updatedUsers);
-    alert('Le dépôt a été marqué comme rejeté.');
-  };
-
-  // Handle withdrawal approval
-  const handleApproveWithdrawal = (userPhone: string, withdrawalId: string) => {
-    const updatedUsers = users.map(u => {
-      if (u.phone === userPhone) {
-        const updatedHistory = u.withdrawalHistory.map(w => {
-          if (w.id === withdrawalId) {
-            return { ...w, status: 'completed' as const };
-          }
-          return w;
-        });
-
-        return {
-          ...u,
-          withdrawalHistory: updatedHistory,
-        };
-      }
-      return u;
-    });
-
-    onUpdateUsers(updatedUsers);
-    alert('Retrait complété ! L\'argent a été transféré au bénéficiaire.');
-  };
-
-  // Handle withdrawal rejection
-  const handleRejectWithdrawal = (userPhone: string, withdrawalId: string) => {
-    const updatedUsers = users.map(u => {
-      if (u.phone === userPhone) {
-        let moneyToRefund = 0;
-        const updatedHistory = u.withdrawalHistory.map(w => {
-          if (w.id === withdrawalId && w.status === 'pending') {
-            moneyToRefund = w.amount;
-            return { ...w, status: 'rejected' as const };
-          }
-          return w;
-        });
-
-        // Refund the user's balance
-        return {
-          ...u,
-          balance: u.balance + moneyToRefund,
-          withdrawalHistory: updatedHistory,
-          lastBalanceUpdateAt: new Date().toISOString()
-        };
-      }
-      return u;
-    });
-
-    onUpdateUsers(updatedUsers);
-    alert('Retrait rejeté. Les fonds ont été remboursés sur le solde de l\'utilisateur.');
-  };
-
-  // Delete user account
-  const handleDeleteUser = (phone: string) => {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${phone} ?`)) {
-      const remaining = users.filter(u => u.phone !== phone);
-      onUpdateUsers(remaining);
+        return u;
+      });
+      onUpdateUsers(updated);
     }
   };
 
-  // Open edit balance modal
+  const handleRejectDeposit = (phone: string, depId: string) => {
+    if (confirm("Rejeter ce dépôt ?")) {
+      const updated = users.map(u => {
+        if (u.phone === phone) {
+          return {
+            ...u,
+            depositHistory: u.depositHistory.filter(d => d.id !== depId)
+          };
+        }
+        return u;
+      });
+      onUpdateUsers(updated);
+    }
+  };
+
+  const handleApproveWithdrawal = (phone: string, withId: string) => {
+    if (confirm("Confirmer le transfert Mobile Money / Crypto et marquer comme complété ?")) {
+      const updated = users.map(u => {
+        if (u.phone === phone) {
+          return {
+            ...u,
+            withdrawalHistory: u.withdrawalHistory.map(w => w.id === withId ? { ...w, status: 'completed' as const } : w)
+          };
+        }
+        return u;
+      });
+      onUpdateUsers(updated);
+    }
+  };
+
+  const handleRejectWithdrawal = (phone: string, withId: string) => {
+    if (confirm("Voulez-vous rejeter ce retrait et recréditer instantanément le compte d'utilisateur ?")) {
+      const updated = users.map(u => {
+        if (u.phone === phone) {
+          const withdrawal = u.withdrawalHistory.find(w => w.id === withId);
+          const refundedBalance = u.balance + (withdrawal ? withdrawal.amount : 0);
+          return {
+            ...u,
+            balance: refundedBalance,
+            withdrawalHistory: u.withdrawalHistory.map(w => w.id === withId ? { ...w, status: 'rejected' as const } : w)
+          };
+        }
+        return u;
+      });
+      onUpdateUsers(updated);
+    }
+  };
+
   const handleStartEditBalance = (user: UserAccount) => {
     setEditUserPhone(user.phone);
-    setEditBalance(user.balance.toFixed(0));
+    setEditBalance(user.balance.toString());
   };
 
-  // Confirm edit balance
   const handleSaveBalance = () => {
     if (!editUserPhone || isNaN(Number(editBalance))) return;
-
     const updated = users.map(u => {
       if (u.phone === editUserPhone) {
-        return {
-          ...u,
-          balance: Number(editBalance),
-          lastBalanceUpdateAt: new Date().toISOString()
-        };
+        return { ...u, balance: Number(editBalance) };
       }
       return u;
     });
-
     onUpdateUsers(updated);
     setEditUserPhone(null);
-    alert('Le solde de l\'utilisateur a été mis à jour avec succès.');
+  };
+
+  const handleDeleteUser = (phone: string) => {
+    if (phone === 'admin') {
+      alert("Impossible de supprimer le compte Principal d'Admin !");
+      return;
+    }
+    if (confirm(`⚠ ATTENTION : Voulez-vous vraiment supprimer définitivement l'utilisateur ${phone} ? Cette action est irréversible.`)) {
+      const updated = users.filter(u => u.phone !== phone);
+      onUpdateUsers(updated);
+    }
   };
 
   return (
     <div className="space-y-6">
       
-      {/* Title */}
+      {/* Admin Title section */}
       <section className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <span className="text-emerald-400 text-xs font-mono tracking-widest uppercase block font-black">OXW SECURE ADMINISTRATEUR</span>
@@ -250,7 +165,7 @@ export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRa
         </div>
         <button
           onClick={onLogoutAdmin}
-          className="px-4 py-2 bg-slate-950 border border-slate-800 hover:border-amber-400/30 text-amber-400 text-xs font-bold rounded-xl transition-all"
+          className="px-4 py-2 bg-slate-950 border border-slate-800 hover:border-blue-400/30 text-blue-400 text-xs font-bold rounded-xl transition-all cursor-pointer"
         >
           Déconnexion Admin
         </button>
@@ -261,7 +176,7 @@ export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRa
         <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
           <span className="text-slate-500 text-[10px] font-mono uppercase block">UTILISATEURS ENREGISTRÉS</span>
           <div className="text-3xl font-mono font-black text-white mt-2 flex items-center gap-2">
-            <Users className="w-6 h-6 text-amber-500" />
+            <Users className="w-6 h-6 text-blue-500" />
             {totalUsers}
           </div>
         </div>
@@ -285,7 +200,7 @@ export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRa
         <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
           <span className="text-slate-500 text-[10px] font-mono uppercase block">RIGS DE MINAGE EN MADAGASCAR</span>
           <div className="text-3xl font-mono font-black text-slate-100 mt-2 flex items-center gap-2">
-            <Cpu className="w-6 h-6 text-amber-400" />
+            <Cpu className="w-6 h-6 text-blue-400" />
             {totalActiveRigs} Rigs
           </div>
         </div>
@@ -295,9 +210,9 @@ export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRa
       <div className="flex border-b border-slate-900 gap-1.5 pb-0">
         <button
           onClick={() => setActiveSubTab('deposits')}
-          className={`px-4 py-2 text-xs font-extrabold rounded-t-xl transition-colors ${
+          className={`px-4 py-2 text-xs font-extrabold rounded-t-xl transition-colors cursor-pointer ${
             activeSubTab === 'deposits'
-              ? 'bg-amber-500 text-slate-950'
+              ? 'bg-blue-600 text-white'
               : 'text-slate-400 hover:text-white bg-slate-900/40 hover:bg-slate-900'
           }`}
         >
@@ -305,9 +220,9 @@ export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRa
         </button>
         <button
           onClick={() => setActiveSubTab('withdrawals')}
-          className={`px-4 py-2 text-xs font-extrabold rounded-t-xl transition-colors ${
+          className={`px-4 py-2 text-xs font-extrabold rounded-t-xl transition-colors cursor-pointer ${
             activeSubTab === 'withdrawals'
-              ? 'bg-amber-500 text-slate-950'
+              ? 'bg-blue-600 text-white'
               : 'text-slate-400 hover:text-white bg-slate-900/40 hover:bg-slate-900'
           }`}
         >
@@ -315,9 +230,9 @@ export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRa
         </button>
         <button
           onClick={() => setActiveSubTab('users')}
-          className={`px-4 py-2 text-xs font-extrabold rounded-t-xl transition-colors ${
+          className={`px-4 py-2 text-xs font-extrabold rounded-t-xl transition-colors cursor-pointer ${
             activeSubTab === 'users'
-              ? 'bg-amber-500 text-slate-950'
+              ? 'bg-blue-600 text-white'
               : 'text-slate-400 hover:text-white bg-slate-900/40 hover:bg-slate-900'
           }`}
         >
@@ -340,48 +255,48 @@ export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRa
                 Aucun dépôt en attente d'approbation.
               </p>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto font-mono">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="border-b border-slate-800 text-slate-500 font-mono">
                       <th className="pb-3 font-semibold">DATE DE DÉCLARATION</th>
-                      <th className="pb-3 font-semibold">UTILISATEUR</th>
+                      <th className="pb-3 font-semibold font-sans">UTILISATEUR</th>
                       <th className="pb-3 font-semibold">OPÉRATEUR</th>
                       <th className="pb-3 font-semibold">NUMÉRO ÉMETTEUR</th>
                       <th className="pb-3 font-semibold">CODE DE RÉFÉRENCE</th>
                       <th className="pb-3 font-semibold text-right">MONTANT</th>
-                      <th className="pb-3 font-semibold text-center">ACTIONS</th>
+                      <th className="pb-3 font-semibold text-center font-sans">ACTIONS</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-mono">
+                  <tbody className="divide-y divide-slate-800/60">
                     {pendingDeposits.map((item) => (
                       <tr key={item.deposit.id} className="hover:bg-slate-950/20 text-slate-350">
                         <td className="py-4.5">{new Date(item.deposit.timestamp).toLocaleString('fr-FR')}</td>
-                        <td className="py-4.5 font-bold text-white">
-                          {item.userName} <span className="text-slate-500 font-normal">({item.userPhone})</span>
+                        <td className="py-4.5 font-bold text-white font-sans text-xs">
+                          {item.userName} <span className="text-slate-500 font-normal font-mono">({item.userPhone})</span>
                         </td>
                         <td className="py-4.5">
-                          <span className="bg-slate-950 border border-slate-800 px-2 py-0.5 rounded font-black text-amber-500 uppercase">
+                          <span className="bg-slate-950 border border-slate-800 px-2 py-0.5 rounded font-black text-blue-400 uppercase">
                             {item.deposit.operator === 'usdt_trc20' ? 'USDT (TRC-20)' : item.deposit.operator}
                           </span>
                         </td>
                         <td className="py-4.5 text-slate-200">{item.deposit.senderNumber}</td>
                         <td className="py-4.5 font-bold text-slate-100 select-all">{item.deposit.reference}</td>
-                        <td className="py-4.5 text-right font-black text-emerald-450 text-sm">
+                        <td className="py-4.5 text-right font-black text-emerald-400 text-sm">
                           {item.deposit.amount.toLocaleString('fr-FR')} Ar ({(item.deposit.amount / usdtRate).toFixed(2)} USDT)
                         </td>
-                        <td className="py-4.5 text-center">
+                        <td className="py-4.5 text-center font-sans">
                           <div className="flex gap-2 justify-center">
                             <button
                               onClick={() => handleApproveDeposit(item.userPhone, item.deposit.id)}
-                              className="px-2 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded flex items-center gap-0.5"
+                              className="px-2 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded flex items-center gap-0.5 cursor-pointer"
                               title="Valider et créditer"
                             >
                               <Check className="w-3.5 h-3.5" /> Accepter
                             </button>
                             <button
                               onClick={() => handleRejectDeposit(item.userPhone, item.deposit.id)}
-                              className="px-2 py-1 bg-red-400/10 hover:bg-red-400/20 border border-red-500/20 text-red-400 font-bold rounded flex items-center gap-0.5"
+                              className="px-2 py-1 bg-red-400/10 hover:bg-red-400/20 border border-red-500/20 text-red-400 font-bold rounded flex items-center gap-0.5 cursor-pointer"
                               title="Rejeter"
                             >
                               <X className="w-3.5 h-3.5" /> Rejeter
@@ -409,27 +324,27 @@ export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRa
                 Aucun retrait en attente d'approbation.
               </p>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto font-mono">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="border-b border-slate-800 text-slate-500 font-mono">
                       <th className="pb-3 font-semibold">DATE DE DEMANDE</th>
-                      <th className="pb-3 font-semibold">UTILISATEUR</th>
+                      <th className="pb-3 font-semibold font-sans">UTILISATEUR</th>
                       <th className="pb-3 font-semibold">OPÉRATEUR DE RÉCEPTION</th>
                       <th className="pb-3 font-semibold">NUMÉRO BÉNÉFICIAIRE</th>
                       <th className="pb-3 font-semibold text-right">MONTANT DEMANDÉ</th>
-                      <th className="pb-3 font-semibold text-center">DÉCISION ADMIN</th>
+                      <th className="pb-3 font-semibold text-center font-sans">DÉCISION ADMIN</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-mono">
+                  <tbody className="divide-y divide-slate-800/60 text-slate-350">
                     {pendingWithdrawals.map((item) => (
                       <tr key={item.withdrawal.id} className="hover:bg-slate-950/20 text-slate-350">
                         <td className="py-4.5">{new Date(item.withdrawal.timestamp).toLocaleString('fr-FR')}</td>
-                        <td className="py-4.5 font-bold text-white">
-                          {item.userName} <span className="text-slate-500 font-normal font-sans">({item.userPhone})</span>
+                        <td className="py-4.5 font-bold text-white font-sans text-xs">
+                          {item.userName} <span className="text-slate-500 font-normal font-mono">({item.userPhone})</span>
                         </td>
                         <td className="py-4.5">
-                          <span className="bg-slate-950 border border-slate-800 px-2 py-0.5 rounded font-black text-amber-500 uppercase">
+                          <span className="bg-slate-950 border border-slate-800 px-2 py-0.5 rounded font-black text-blue-400 uppercase">
                             {item.withdrawal.operator === 'usdt_trc20' ? 'USDT (TRC-20)' : item.withdrawal.operator}
                           </span>
                         </td>
@@ -437,18 +352,18 @@ export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRa
                         <td className="py-4.5 text-right font-black text-red-400 text-sm">
                           -{item.withdrawal.amount.toLocaleString('fr-FR')} Ar ({(item.withdrawal.amount / usdtRate).toFixed(2)} USDT)
                         </td>
-                        <td className="py-4.5 text-center">
+                        <td className="py-4.5 text-center font-sans">
                           <div className="flex gap-2 justify-center">
                             <button
                               onClick={() => handleApproveWithdrawal(item.userPhone, item.withdrawal.id)}
-                              className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded flex items-center gap-0.5"
+                              className="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded flex items-center gap-0.5 cursor-pointer"
                               title="Valider et débloquer les fonds"
                             >
                               <Check className="w-3.5 h-3.5" /> Compléter transfert
                             </button>
                             <button
                               onClick={() => handleRejectWithdrawal(item.userPhone, item.withdrawal.id)}
-                              className="px-2 py-1 bg-red-400/10 hover:bg-red-400/20 border border-red-500/20 text-red-400 font-bold rounded flex items-center gap-0.5"
+                              className="px-2 py-1 bg-red-400/10 hover:bg-red-400/20 border border-red-500/20 text-red-400 font-bold rounded flex items-center gap-0.5 cursor-pointer"
                               title="Rejeter pour fraude et rembourser"
                             >
                               <X className="w-3.5 h-3.5" /> Rejeter (Rembourser)
@@ -481,7 +396,7 @@ export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRa
                         {u.phone}
                       </span>
                       {u.referredBy && (
-                        <span className="text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded font-mono">
+                        <span className="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded font-mono">
                           Parrainé par: {u.referredBy}
                         </span>
                       )}
@@ -491,22 +406,22 @@ export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRa
                       <span>Solde : <strong className="text-emerald-400">{u.balance.toLocaleString('fr-FR')} Ar</strong></span>
                       <span>Rigs de Minage : <strong className="text-slate-100">{u.activeMiners.length}</strong></span>
                       <span>Parrainages : <strong className="text-slate-100">{u.referrals.length}</strong></span>
-                      <span>Gains Parrain : <strong className="text-amber-500">{u.referralEarnings.toLocaleString('fr-FR')} Ar</strong></span>
-                      <span>Code : <strong className="text-amber-300">{u.referralCode}</strong></span>
+                      <span>Gains Parrain : <strong className="text-blue-400">{u.referralEarnings.toLocaleString('fr-FR')} Ar</strong></span>
+                      <span>Code : <strong className="text-blue-300 font-bold">{u.referralCode}</strong></span>
                     </div>
                   </div>
 
-                  <div className="flex gap-2 w-full md:w-auto justify-end">
+                  <div className="flex gap-2 w-full md:w-auto justify-end font-sans">
                     <button
                       onClick={() => handleStartEditBalance(u)}
-                      className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-lg text-xs flex items-center gap-1 font-semibold"
+                      className="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-lg text-xs flex items-center gap-1 font-semibold cursor-pointer"
                     >
                       <Edit className="w-3.5 h-3.5" /> Editer Solde
                     </button>
                     <button
                       onClick={() => handleDeleteUser(u.phone)}
                       disabled={u.phone === 'admin'}
-                      className="p-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-lg text-xs flex items-center gap-1 font-semibold disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="p-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-lg text-xs flex items-center gap-1 font-semibold disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" /> Supprimer
                     </button>
@@ -517,13 +432,13 @@ export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRa
 
             {/* Simple Balance Editor Dialog Modal */}
             {editUserPhone && (
-              <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+              <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-[999] flex items-center justify-center p-4 font-sans">
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 space-y-4">
                   <h4 className="font-display font-black text-white text-sm">Éditer le solde de l'utilisateur</h4>
                   <p className="text-xs text-slate-400 font-mono">Identifiant : {editUserPhone}</p>
                   
                   <div>
-                    <label className="text-slate-400 text-xs block mb-1 font-mono">NOUVEAU SOLDE EN ARIARY (Ar) :</label>
+                    <label className="text-slate-400 text-xs block mb-1 font-sans">NOUVEAU SOLDE EN ARIARY (Ar) :</label>
                     <input
                       type="number"
                       value={editBalance}
@@ -532,16 +447,16 @@ export default function AdminPanel({ users, onUpdateUsers, onLogoutAdmin, usdtRa
                     />
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 pt-2">
                     <button
                       onClick={() => setEditUserPhone(null)}
-                      className="flex-1 py-2 bg-slate-800 rounded-lg text-xs text-slate-350 font-bold"
+                      className="flex-1 py-2 bg-slate-800 rounded-lg text-xs text-slate-350 font-bold cursor-pointer"
                     >
                       Annuler
                     </button>
                     <button
                       onClick={handleSaveBalance}
-                      className="flex-1 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-xs font-bold"
+                      className="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold cursor-pointer"
                     >
                       Sauvegarder
                     </button>
